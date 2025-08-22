@@ -1,13 +1,17 @@
-# User API Endpoints
+# User & Captain Routes API Documentation
 
-## POST /users/register
+This document describes the `/users` and `/captains` endpoints, including HTTP methods, status codes, request and response bodies.
 
-- **HTTP Method:** POST
-- **Status Codes:**
-  - `201 Created`: User registered successfully
-  - `400 Bad Request`: Validation failed or user already exists
+---
 
-### Request Body
+## User Endpoints
+
+### 1. Register
+
+- **Endpoint:** `/users/register`
+- **Method:** POST
+
+#### Request Body
 
 ```json
 {
@@ -20,55 +24,51 @@
 }
 ```
 
-### Successful Response (`201 Created`)
+#### Responses
 
-```json
-{
-  "token": "<jwt_token>",
-  "user": {
-    "_id": "user_id",
-    "fullname": {
-      "firstname": "John",
-      "lastname": "Doe"
-    },
-    "email": "john@example.com",
-    "socketId": null,
-    "__v": 0
-  }
-}
-```
-
-### Error Response (`400 Bad Request`)
-
-```json
-{
-  "errors": [
-    {
-      "msg": "Invalid Email",
-      "param": "email",
-      "location": "body"
+- **201 Created**
+  ```json
+  {
+    "token": "<jwt_token>",
+    "user": {
+      "_id": "user_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john@example.com",
+      "socketId": null,
+      "__v": 0
     }
-  ]
-}
-```
-or
-```json
-{
-  "message": "User already exist"
-}
-```
+  }
+  ```
+- **400 Bad Request** (Validation error)
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Invalid Email",
+        "param": "email",
+        "location": "body"
+      }
+    ]
+  }
+  ```
+- **400 Bad Request** (User already exists)
+  ```json
+  {
+    "message": "User already exist"
+  }
+  ```
 
 ---
 
-## POST /users/login
+### 2. Login
 
-- **HTTP Method:** POST
-- **Status Codes:**
-  - `200 OK`: Login successful
-  - `400 Bad Request`: Validation failed
-  - `401 Unauthorized`: Invalid email or password
+- **Endpoint:** `/users/login`
+- **Method:** POST
 
-### Request Body
+#### Request Body
 
 ```json
 {
@@ -77,12 +77,57 @@ or
 }
 ```
 
-### Successful Response (`200 OK`)
+#### Responses
 
-```json
-{
-  "token": "<jwt_token>",
-  "user": {
+- **200 OK**
+  ```json
+  {
+    "token": "<jwt_token>",
+    "user": {
+      "_id": "user_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john@example.com",
+      "socketId": null,
+      "__v": 0
+    }
+  }
+  ```
+  - Sets a `token` cookie.
+- **400 Bad Request** (Validation error)
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Invalid Email",
+        "param": "email",
+        "location": "body"
+      }
+    ]
+  }
+  ```
+- **401 Unauthorized**
+  ```json
+  {
+    "message": "Invalid email or password"
+  }
+  ```
+
+---
+
+### 3. Profile
+
+- **Endpoint:** `/users/profile`
+- **Method:** GET
+- **Authentication:** Required (JWT token in cookie or Authorization header)
+
+#### Responses
+
+- **200 OK**
+  ```json
+  {
     "_id": "user_id",
     "fullname": {
       "firstname": "John",
@@ -92,27 +137,228 @@ or
     "socketId": null,
     "__v": 0
   }
-}
-```
+  ```
+- **401 Unauthorized**
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
 
-### Error Response (`400 Bad Request`)
+---
+
+### 4. Logout
+
+- **Endpoint:** `/users/logout`
+- **Method:** GET
+- **Authentication:** Required (JWT token in cookie or Authorization header)
+
+#### Responses
+
+- **200 OK**
+  ```json
+  {
+    "message": "Logged out"
+  }
+  ```
+  - Clears the `token` cookie.
+- **401 Unauthorized**
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+
+---
+
+## Captain Endpoints
+
+### 1. Register
+
+- **Endpoint:** `/captains/register`
+- **Method:** POST
+
+#### Request Body
 
 ```json
 {
-  "errors": [
-    {
-      "msg": "Invalid Email",
-      "param": "email",
-      "location": "body"
+  "fullname": {
+    "firstname": "Jane",
+    "lastname": "Smith"
+  },
+  "email": "jane@example.com",
+  "password": "yourpassword",
+  "vehicle": {
+    "color": "Red",
+    "plate": "ABC123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+#### Responses
+
+- **201 Created**
+  ```json
+  {
+    "token": "<jwt_token>",
+    "captain": {
+      "_id": "captain_id",
+      "fullname": {
+        "firstname": "Jane",
+        "lastname": "Smith"
+      },
+      "email": "jane@example.com",
+      "status": "inactive",
+      "vehicle": {
+        "color": "Red",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+      },
+      "socketId": null,
+      "__v": 0
     }
-  ]
-}
-```
+  }
+  ```
+- **400 Bad Request** (Validation error)
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Invalid Email",
+        "param": "email",
+        "location": "body"
+      }
+    ]
+  }
+  ```
+- **400 Bad Request** (Captain already exists)
+  ```json
+  {
+    "message": "Captain already exist"
+  }
+  ```
 
-### Error Response (`401 Unauthorized`)
+---
+
+### 2. Login
+
+- **Endpoint:** `/captains/login`
+- **Method:** POST
+
+#### Request Body
 
 ```json
 {
-  "message": "Invalid email or password"
+  "email": "jane@example.com",
+  "password": "yourpassword"
 }
 ```
+
+#### Responses
+
+- **200 OK**
+  ```json
+  {
+    "token": "<jwt_token>",
+    "captain": {
+      "_id": "captain_id",
+      "fullname": {
+        "firstname": "Jane",
+        "lastname": "Smith"
+      },
+      "email": "jane@example.com",
+      "status": "inactive",
+      "vehicle": {
+        "color": "Red",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+      },
+      "socketId": null,
+      "__v": 0
+    }
+  }
+  ```
+  - Sets a `token` cookie.
+- **400 Bad Request** (Validation error)
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Invalid Email",
+        "param": "email",
+        "location": "body"
+      }
+    ]
+  }
+  ```
+- **401 Unauthorized**
+  ```json
+  {
+    "message": "Invalid email or password"
+  }
+  ```
+
+---
+
+### 3. Profile
+
+- **Endpoint:** `/captains/profile`
+- **Method:** GET
+- **Authentication:** Required (JWT token in cookie or Authorization header)
+
+#### Responses
+
+- **200 OK**
+  ```json
+  {
+    "_id": "captain_id",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Smith"
+    },
+    "email": "jane@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "socketId": null,
+    "__v": 0
+  }
+  ```
+- **401 Unauthorized**
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+
+---
+
+### 4. Logout
+
+- **Endpoint:** `/captains/logout`
+- **Method:** GET
+- **Authentication:** Required (JWT token in cookie or Authorization header)
+
+#### Responses
+
+- **200 OK**
+  ```json
+  {
+    "message": "Logged out"
+  }
+  ```
+  - Clears the `token` cookie.
+- **401 Unauthorized**
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
